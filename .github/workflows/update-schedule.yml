@@ -2,7 +2,7 @@ name: Update Personal Time Calendar
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -27,13 +27,13 @@ jobs:
         env:
           PUSH_ICS_URL: ${{ secrets.PUSH_ICS_URL }}
           WEEKLY_HOURS_TARGET: "6"
-          WAKE_START: "07:00"
-          WAKE_END: "23:00"
-          MIN_BLOCK_MINUTES: "30"
+          WAKE_START: "11:00"
+          WAKE_END: "23:59"
+          MIN_BLOCK_MINUTES: "15"
           MAX_BLOCK_MINUTES: "120"
-          LOOKAHEAD_DAYS: "21"
-          TIMEZONE: "America/Chicago"
-          EVENT_TITLE: "Personal Time"
+          LOOKAHEAD_DAYS: "9"
+          TIMEZONE: "America/New_York"
+          EVENT_TITLE: "Comptia Study"
         run: python schedule_freetime.py
 
       - name: Commit and push if changed
