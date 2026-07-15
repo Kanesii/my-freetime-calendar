@@ -19,6 +19,7 @@ or just export them locally when testing):
   TIMEZONE            Default "America/Chicago". Your local IANA timezone.
   EVENT_TITLE         Default "Personal Time".
   OUTPUT_PATH         Default "personal_time.ics".
+  BUFFER_MINUTES      Default 30. Minutes kept free before/after each shift.
 """
 
 import os
@@ -50,6 +51,7 @@ def load_config():
         "timezone": os.environ.get("TIMEZONE", "America/Chicago"),
         "event_title": os.environ.get("EVENT_TITLE", "Personal Time"),
         "output_path": os.environ.get("OUTPUT_PATH", "personal_time.ics"),
+        "buffer_minutes": int(os.environ.get("BUFFER_MINUTES", "30")),
     }
     if not cfg["push_ics_url"]:
         sys.exit("PUSH_ICS_URL is not set. Set it as an environment variable or secret.")
@@ -70,7 +72,6 @@ def fetch_busy_intervals(ics_url, tz, start, end):
         dtstart = e["DTSTART"].dt
         dtend = e["DTEND"].dt if "DTEND" in e else dtstart
 
-        # Normalize all-day (date-only) events to full-day datetime ranges
         if not isinstance(dtstart, datetime):
             dtstart = tz.localize(datetime.combine(dtstart, dtime.min))
         if not isinstance(dtend, datetime):
@@ -89,7 +90,6 @@ def fetch_busy_intervals(ics_url, tz, start, end):
 
     busy.sort(key=lambda t: t[0])
 
-    # Merge overlapping/adjacent busy intervals
     merged = []
     for s, e in busy:
         if merged and s <= merged[-1][1]:
@@ -155,7 +155,6 @@ def build_calendar(all_blocks, title):
         ev.add("summary", title)
         ev.add("dtstart", start)
         ev.add("dtend", end)
-        # Deterministic UID so re-running doesn't create duplicate events
         raw = f"{start.isoformat()}-{end.isoformat()}-{title}"
         uid = hashlib.sha1(raw.encode()).hexdigest()
         ev.add("uid", f"{uid}@freetime-scheduler")
@@ -173,8 +172,21 @@ def main():
 
     busy = fetch_busy_intervals(cfg["push_ics_url"], tz, today, horizon)
 
+    # Pad each shift with a buffer on both sides so personal time never
+    # gets scheduled immediately before or after work. The buffer itself
+    # is left free (not written to the output calendar as an event).
+    if cfg["buffer_minutes"] > 0:
+        pad = timedelta(minutes=cfg["buffer_minutes"])
+        padded = sorted((s - pad, e + pad) for s, e in busy)
+        merged_padded = []
+        for s, e in padded:
+            if merged_padded and s <= merged_padded[-1][1]:
+                merged_padded[-1] = (merged_padded[-1][0], max(merged_padded[-1][1], e))
+            else:
+                merged_padded.append((s, e))
+        busy = merged_padded
+
     all_blocks = []
-    # Plan week by week (Mon-Sun) within the lookahead window
     day = today
     while day < horizon:
         week_start = day
@@ -188,7 +200,6 @@ def main():
             )
             d += timedelta(days=1)
 
-        # Don't schedule personal time in the past on the current (partial) first week
         week_gaps = [(s, e) for s, e in week_gaps if e > datetime.now(tz)]
 
         minutes_target = cfg["weekly_hours_target"] * 60
