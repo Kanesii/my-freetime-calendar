@@ -2,9 +2,10 @@ name: Update Personal Time Calendar
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/5 * * * 6,0"    # every 5 min on Saturday and Sunday
+    - cron: "*/15 * * * 1-5"   # every 15 min Monday through Friday
   workflow_dispatch: {}
-
+  
 permissions:
   contents: write
 
