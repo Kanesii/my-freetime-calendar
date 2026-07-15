@@ -29,6 +29,7 @@ jobs:
           WEEKLY_HOURS_TARGET: "6"
           WAKE_START: "11:00"
           WAKE_END: "23:59"
+          BUFFER_MINUTES: "30"
           MIN_BLOCK_MINUTES: "15"
           MAX_BLOCK_MINUTES: "120"
           LOOKAHEAD_DAYS: "9"
