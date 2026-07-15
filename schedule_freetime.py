@@ -20,6 +20,9 @@ or just export them locally when testing):
   EVENT_TITLE         Default "Personal Time".
   OUTPUT_PATH         Default "personal_time.ics".
   BUFFER_MINUTES      Default 30. Minutes kept free before/after each shift.
+  PERSONAL_ICS_URL    Optional. A second ICS feed (e.g. an Apple Calendar
+                       public share link) of manually-added events to also
+                       treat as busy time.
 """
 
 import os
@@ -52,6 +55,7 @@ def load_config():
         "event_title": os.environ.get("EVENT_TITLE", "Personal Time"),
         "output_path": os.environ.get("OUTPUT_PATH", "personal_time.ics"),
         "buffer_minutes": int(os.environ.get("BUFFER_MINUTES", "30")),
+        "personal_ics_url": os.environ.get("PERSONAL_ICS_URL", "").strip(),
     }
     if not cfg["push_ics_url"]:
         sys.exit("PUSH_ICS_URL is not set. Set it as an environment variable or secret.")
@@ -59,7 +63,7 @@ def load_config():
 
 
 def fetch_busy_intervals(ics_url, tz, start, end):
-    """Download the work ICS feed and return a sorted list of (start, end) busy tuples,
+    """Download an ICS feed and return a sorted list of (start, end) busy tuples,
     with recurring events already expanded."""
     resp = requests.get(ics_url, timeout=30)
     resp.raise_for_status()
@@ -170,21 +174,37 @@ def main():
     today = tz.localize(datetime.combine(datetime.now(tz).date(), dtime.min))
     horizon = today + timedelta(days=cfg["lookahead_days"])
 
-    busy = fetch_busy_intervals(cfg["push_ics_url"], tz, today, horizon)
+    work_busy = fetch_busy_intervals(cfg["push_ics_url"], tz, today, horizon)
 
     # Pad each shift with a buffer on both sides so personal time never
     # gets scheduled immediately before or after work. The buffer itself
     # is left free (not written to the output calendar as an event).
     if cfg["buffer_minutes"] > 0:
         pad = timedelta(minutes=cfg["buffer_minutes"])
-        padded = sorted((s - pad, e + pad) for s, e in busy)
+        padded = sorted((s - pad, e + pad) for s, e in work_busy)
         merged_padded = []
         for s, e in padded:
             if merged_padded and s <= merged_padded[-1][1]:
                 merged_padded[-1] = (merged_padded[-1][0], max(merged_padded[-1][1], e))
             else:
                 merged_padded.append((s, e))
-        busy = merged_padded
+        work_busy = merged_padded
+
+    # Pull in a second calendar of events you added by hand (e.g. an
+    # Apple Calendar public share link), and treat those as busy too,
+    # no buffer applied since they're not work shifts.
+    personal_busy = []
+    if cfg["personal_ics_url"]:
+        personal_busy = fetch_busy_intervals(cfg["personal_ics_url"], tz, today, horizon)
+
+    busy = sorted(work_busy + personal_busy)
+    merged_all = []
+    for s, e in busy:
+        if merged_all and s <= merged_all[-1][1]:
+            merged_all[-1] = (merged_all[-1][0], max(merged_all[-1][1], e))
+        else:
+            merged_all.append((s, e))
+    busy = merged_all
 
     all_blocks = []
     day = today
