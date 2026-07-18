@@ -4,9 +4,9 @@ PRODID:-//freetime-scheduler//personal-time//
 X-WR-CALNAME:Comptia Study
 BEGIN:VEVENT
 SUMMARY:Comptia Study
-DTSTART;TZID=America/New_York:20260718T123000
-DTEND;TZID=America/New_York:20260718T143000
-UID:b0e309c6d0533056b50be09260f4277ea103cf60@freetime-scheduler
+DTSTART;TZID=America/New_York:20260718T110000
+DTEND;TZID=America/New_York:20260718T130000
+UID:192c1572f341f6f687f55d9e8cca46d5315fd4b3@freetime-scheduler
 END:VEVENT
 BEGIN:VEVENT
 SUMMARY:Comptia Study
