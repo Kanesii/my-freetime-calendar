@@ -27,6 +27,7 @@ jobs:
       - name: Generate personal_time.ics
         env:
           PUSH_ICS_URL: ${{ secrets.PUSH_ICS_URL }}
+          PERSONAL_ICS_URL: ${{ secrets.PERSONAL_ICS_URL }}
           WEEKLY_HOURS_TARGET: "8"
           WAKE_START: "11:00"
           WAKE_END: "23:59"
