@@ -19,10 +19,6 @@ or just export them locally when testing):
   TIMEZONE            Default "America/Chicago". Your local IANA timezone.
   EVENT_TITLE         Default "Personal Time".
   OUTPUT_PATH         Default "personal_time.ics".
-  BUFFER_MINUTES      Default 30. Minutes kept free before/after each shift.
-  PERSONAL_ICS_URL    Optional. A second ICS feed (e.g. an Apple Calendar
-                       public share link) of manually-added events to also
-                       treat as busy time.
 """
 
 import os
@@ -63,7 +59,7 @@ def load_config():
 
 
 def fetch_busy_intervals(ics_url, tz, start, end):
-    """Download an ICS feed and return a sorted list of (start, end) busy tuples,
+    """Download the work ICS feed and return a sorted list of (start, end) busy tuples,
     with recurring events already expanded."""
     resp = requests.get(ics_url, timeout=30)
     resp.raise_for_status()
@@ -76,6 +72,7 @@ def fetch_busy_intervals(ics_url, tz, start, end):
         dtstart = e["DTSTART"].dt
         dtend = e["DTEND"].dt if "DTEND" in e else dtstart
 
+        # Normalize all-day (date-only) events to full-day datetime ranges
         if not isinstance(dtstart, datetime):
             dtstart = tz.localize(datetime.combine(dtstart, dtime.min))
         if not isinstance(dtend, datetime):
@@ -94,6 +91,7 @@ def fetch_busy_intervals(ics_url, tz, start, end):
 
     busy.sort(key=lambda t: t[0])
 
+    # Merge overlapping/adjacent busy intervals
     merged = []
     for s, e in busy:
         if merged and s <= merged[-1][1]:
@@ -159,6 +157,7 @@ def build_calendar(all_blocks, title):
         ev.add("summary", title)
         ev.add("dtstart", start)
         ev.add("dtend", end)
+        # Deterministic UID so re-running doesn't create duplicate events
         raw = f"{start.isoformat()}-{end.isoformat()}-{title}"
         uid = hashlib.sha1(raw.encode()).hexdigest()
         ev.add("uid", f"{uid}@freetime-scheduler")
@@ -191,7 +190,7 @@ def main():
         work_busy = merged_padded
 
     # Pull in a second calendar of events you added by hand (e.g. an
-    # Apple Calendar public share link), and treat those as busy too,
+    # "Apple Calendar public share link"), and treat those as busy too,
     # no buffer applied since they're not work shifts.
     personal_busy = []
     if cfg["personal_ics_url"]:
@@ -207,6 +206,7 @@ def main():
     busy = merged_all
 
     all_blocks = []
+    # Plan week by week (Mon-Sun) within the lookahead window
     day = today
     while day < horizon:
         week_start = day
@@ -220,6 +220,7 @@ def main():
             )
             d += timedelta(days=1)
 
+        # Don't schedule personal time in the past on the current (partial) first week
         week_gaps = [(s, e) for s, e in week_gaps if e > datetime.now(tz)]
 
         minutes_target = cfg["weekly_hours_target"] * 60
