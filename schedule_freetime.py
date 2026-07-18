@@ -41,10 +41,10 @@ def env_time(name, default):
 def load_config():
     cfg = {
         "push_ics_url": os.environ.get("PUSH_ICS_URL"),
-        "weekly_hours_target": float(os.environ.get("WEEKLY_HOURS_TARGET", "6")),
+        "weekly_hours_target": float(os.environ.get("WEEKLY_HOURS_TARGET", "8")),
         "wake_start": env_time("WAKE_START", "07:00"),
         "wake_end": env_time("WAKE_END", "23:00"),
-        "min_block_minutes": int(os.environ.get("MIN_BLOCK_MINUTES", "30")),
+        "min_block_minutes": int(os.environ.get("MIN_BLOCK_MINUTES", "60")),
         "max_block_minutes": int(os.environ.get("MAX_BLOCK_MINUTES", "120")),
         "lookahead_days": int(os.environ.get("LOOKAHEAD_DAYS", "21")),
         "timezone": os.environ.get("TIMEZONE", "America/Chicago"),
