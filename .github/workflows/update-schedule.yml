@@ -30,11 +30,11 @@ jobs:
           PERSONAL_ICS_URL: ${{ secrets.PERSONAL_ICS_URL }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          WEEKLY_HOURS_TARGET: "6"
+          WEEKLY_HOURS_TARGET: "8"
           WAKE_START: "11:00"
           WAKE_END: "23:59"
           BUFFER_MINUTES: "30"
-          MIN_BLOCK_MINUTES: "15"
+          MIN_BLOCK_MINUTES: "60"
           MAX_BLOCK_MINUTES: "120"
           LOOKAHEAD_DAYS: "9"
           TIMEZONE: "America/New_York"
