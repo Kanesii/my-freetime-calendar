@@ -206,22 +206,32 @@ def main():
     for uid in untouched_uids:
         delete_event(calendar, uid)
 
-    # --- Step 5: plan new blocks around ALL busy time (work + manual +
+   # --- Step 5: plan new blocks around ALL busy time (work + manual +
     # user-moved blocks), reduced by hours already covered by user-owned
     # blocks ---
-    already_owned_minutes_by_week = {}
-    for s, e in user_owned_intervals:
-        week_key = (s - timedelta(days=(s.weekday() + 1) % 7)).date().isoformat()
-        minutes = (e - s).total_seconds() / 60
-        already_owned_minutes_by_week[week_key] = already_owned_minutes_by_week.get(week_key, 0) + minutes
-
-    new_blocks = []
+    # IMPORTANT: build the week windows ONCE and reuse the same list for
+    # both bucketing owned hours and planning new blocks. Two independently
+    # computed week-boundary schemes (e.g. one calendar-Sunday-aligned, one
+    # "today plus 7 days" chunked) will not line up unless the script
+    # happens to run on a Sunday, which silently drops the owned-hours
+    # deduction and over-schedules.
+    week_windows = []
     day = today
     while day < horizon:
         week_start = day
         week_end = min(week_start + timedelta(days=7), horizon)
-        week_key = week_start.date().isoformat()
+        week_windows.append((week_start, week_end))
+        day = week_end
 
+    already_owned_minutes = [0.0] * len(week_windows)
+    for s, e in user_owned_intervals:
+        for i, (ws, we) in enumerate(week_windows):
+            if ws <= s < we:
+                already_owned_minutes[i] += (e - s).total_seconds() / 60
+                break
+
+    new_blocks = []
+    for i, (week_start, week_end) in enumerate(week_windows):
         week_gaps = []
         d = week_start
         while d < week_end:
@@ -233,14 +243,12 @@ def main():
         week_gaps = [(s, e) for s, e in week_gaps if e > datetime.now(tz)]
 
         target_minutes = cfg["weekly_hours_target"] * 60
-        already_owned = already_owned_minutes_by_week.get(week_key, 0)
-        remaining_minutes = max(0, target_minutes - already_owned)
+        remaining_minutes = max(0.0, target_minutes - already_owned_minutes[i])
 
         week_blocks = allocate_blocks(
             week_gaps, remaining_minutes, cfg["min_block_minutes"], cfg["max_block_minutes"]
         )
         new_blocks.extend(week_blocks)
-        day = week_end
 
     # --- Step 6: write the new auto-generated blocks to the calendar ---
     new_state = []
