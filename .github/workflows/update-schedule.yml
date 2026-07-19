@@ -47,7 +47,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           WORK_CALENDAR_NAME: "Work"
-          WORK_LOCATION: "123 Main St, New York, NY"
+          WORK_LOCATION: "High Tidez"
           LOOKAHEAD_DAYS: "9"
           TIMEZONE: "America/New_York"
         run: python mirror_work_caldav.py
