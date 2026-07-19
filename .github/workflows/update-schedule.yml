@@ -40,7 +40,18 @@ jobs:
           TIMEZONE: "America/New_York"
           EVENT_TITLE: "Comptia Study"
         run: python schedule_freetime_caldav.py
-
+        
+      - name: Mirror work schedule
+        env:
+          PUSH_ICS_URL: ${{ secrets.PUSH_ICS_URL }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          WORK_CALENDAR_NAME: "Work"
+          WORK_LOCATION: "123 Main St, New York, NY"
+          LOOKAHEAD_DAYS: "9"
+          TIMEZONE: "America/New_York"
+        run: python mirror_work_caldav.py
+        
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
