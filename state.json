@@ -1,36 +1,36 @@
 [
   {
-    "uid": "freetime-4@freetime-scheduler",
+    "uid": "freetime-0@freetime-scheduler",
     "start": "2026-07-19T11:00:00-04:00",
     "end": "2026-07-19T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-5@freetime-scheduler",
+    "uid": "freetime-1@freetime-scheduler",
     "start": "2026-07-20T11:00:00-04:00",
     "end": "2026-07-20T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-6@freetime-scheduler",
+    "uid": "freetime-2@freetime-scheduler",
     "start": "2026-07-21T11:00:00-04:00",
     "end": "2026-07-21T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-7@freetime-scheduler",
+    "uid": "freetime-3@freetime-scheduler",
     "start": "2026-07-21T22:30:00-04:00",
     "end": "2026-07-21T23:59:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-8@freetime-scheduler",
+    "uid": "freetime-9@freetime-scheduler",
     "start": "2026-07-26T11:00:00-04:00",
     "end": "2026-07-26T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-11@freetime-scheduler",
+    "uid": "freetime-10@freetime-scheduler",
     "start": "2026-07-27T11:00:00-04:00",
     "end": "2026-07-27T13:00:00-04:00",
     "user_owned": false
