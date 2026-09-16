@@ -1,42 +1,42 @@
 [
   {
-    "uid": "freetime-3@freetime-scheduler",
+    "uid": "freetime-0@freetime-scheduler",
     "start": "2026-09-15T22:30:00-04:00",
     "end": "2026-09-15T23:59:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-4@freetime-scheduler",
+    "uid": "freetime-1@freetime-scheduler",
     "start": "2026-09-16T11:00:00-04:00",
     "end": "2026-09-16T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-5@freetime-scheduler",
+    "uid": "freetime-2@freetime-scheduler",
     "start": "2026-09-16T22:30:00-04:00",
     "end": "2026-09-16T23:59:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-6@freetime-scheduler",
+    "uid": "freetime-7@freetime-scheduler",
     "start": "2026-09-17T11:00:00-04:00",
     "end": "2026-09-17T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-9@freetime-scheduler",
+    "uid": "freetime-8@freetime-scheduler",
     "start": "2026-09-18T11:00:00-04:00",
     "end": "2026-09-18T12:02:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-10@freetime-scheduler",
+    "uid": "freetime-11@freetime-scheduler",
     "start": "2026-09-22T11:00:00-04:00",
     "end": "2026-09-22T13:00:00-04:00",
     "user_owned": false
   },
   {
-    "uid": "freetime-12@freetime-scheduler",
+    "uid": "freetime-13@freetime-scheduler",
     "start": "2026-09-23T11:00:00-04:00",
     "end": "2026-09-23T13:00:00-04:00",
     "user_owned": false
